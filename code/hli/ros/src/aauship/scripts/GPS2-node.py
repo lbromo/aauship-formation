@@ -1,3 +1,5 @@
+#!/usr/bin/env python2
+
 import rospy
 import serial
 
@@ -40,38 +42,51 @@ class GPS2():
     '''
 
     def __init__(self, log_file):
-        self.gps2 = serial.Serial("/dev/gps2",115200,timeout=0.04)
+        #self.gps2 = serial.Serial("/dev/gps2",115200,timeout=0.04)
+        self.gps2 = open("gps2.data")
         self.log_file = open(log_file, 'w')
         self.pub = rospy.Publisher('gps2', GPS, queue_size=10)
+        self.lli = rospy.Publisher('lli_input', LLIinput, queue_size=10)
+
 	rospy.init_node('gps2node')
 
     def run(self):
         GPGGA_received = False
         GPRMC_received = False
         gps_msg = GPS()
+        
         while not rospy.is_shutdown():
             try:
                 line = self.gps2.readline()
                 if line:
-                    line = line.rstrip()
-                    self.log_file.write(line)
+                    line = line.rstrip()                    
                     data_arr = line.split(',')
-
+                    
                 if data_arr[0] == "$GPGGA":
-                    print data_arr
+                    self.log_file.write(line + '\n')
                     GPGGA_received = True
-                    gps_msg.time = int(data_arr[1])
-                    gps_msg.latitude = float(data_arr[2])
-                    gps_msg.longitude = float(data_arr[4])
+                    #print data_arr[1]
+                    gps_msg.time = int(float(data_arr[1]))
+                    #print "time:", int(float(data_arr[1]))
+                    latitude = float(data_arr[2][0:2]) + (float(data_arr[2][5:7])/60 + float(data_arr[2][2:4]))/60
+                    gps_msg.latitude = latitude
+                    #print "lat:", float(data_arr[2])
+                    longitude = float(data_arr[4][0:3]) + (float(data_arr[4][6:8])/60 + float(data_arr[4][3:5]))/60
+                    gps_msg.longitude = longitude
+                    #print "long:", float(data_arr[4])
                     gps_msg.fix = int(data_arr[6])
+                    #print "fix:", int(data_arr[6])
                     gps_msg.sats = int(data_arr[7])
+                    #print "sats:", int(data_arr[7])
                     gps_msg.HDOP = float(data_arr[8])
+                    #print "HDOP:", float(data_arr[8])
                     gps_msg.altitude = float(data_arr[9])
-                    gps_msg.height = float(data_arr[10])
+                    #print "AMSL:", float(data_arr[9])
+                    gps_msg.height = float(data_arr[11])
 
 
                 elif data_arr[0] == "$GPRMC":
-                    print data_arr
+                    self.log_file.write(line + '\n')
                     GPRMC_received = True
                     gps_msg.SOG = float(data_arr[7])
                     gps_msg.track_angle = float(data_arr[8])
@@ -91,5 +106,4 @@ class GPS2():
 
 if __name__ == '__main__':
     gps = GPS2('logs/gps2.log')
-    gps.run()
-
+    gps.run()    
