@@ -1,22 +1,32 @@
 %% 3 DOF model
 
-M = [13 0 0; 0 13 -0.39; 0 -0.39 1.1068];
-D = [2.86 0 0; 0 32.50 0.0926; 0 0.09750 0.2628];
+% states:
+% [N E psi u v r]'
+% u:
+% [Fx Fy torque]'
 
+% Rigid body mass matrix, page 53 fossen
+% The boat is approx 13 kg. M(2,3), M(3,2) M(3,3) are calculated by Nick in openloopplots
+M = [13 0 0; 0 13 -0.39; 0 -0.39 1.1068];
+D = [2.86 0 0; 0 32.50 0.0926; 0 0.09750 0.2628]; % Calculated by Nick in openloopplots
+
+% Fossen page 175, eq. 7.219
 A = [zeros(3) eye(3); zeros(3) -inv(M) * D];
 B = [zeros(3); inv(M)];
 
-C = eye(6);
+% We care bout [N E psi]'
+C = [eye(3) zeros(3); zeros(3) zeros(3)];   
 
 
 ts= 0.1; % sample time
-
 sys = ss(A,B,C,0);
 sysd = c2d(sys,ts,'zoh');
 
-% states:
-% [N E psi u v r]
+Ad = sysd.a;
+Bd = sysd.b;
+Cd = sysd.c;
 
+% Step discrete model
 x0 = [0 0 0 1 1 0]';
 figure(1)
 t = 0:ts:400;
@@ -43,18 +53,16 @@ R(1,1) = 1/500;
 R(2,2) = 1/500;
 R(3,3) = 100;
 
-K = lqr(A,B,Q,R,0);
+K = lqr(A,B,Q,R);
 P = eig(A-B*K);
 
 K = place(A,B,P);
 
-ts= 0.1; % sample time
+ts= 0.1;
 sys_cl = ss(A-B*K,B,C,0);
 sysd_cl = c2d(sys_cl,ts,'zoh');
 
-% states:
-% [N E psi u v r]
-
+% Step cloased loop system
 x0 = [0 0 0 1 1 0]';
 figure(2)
 t = 0:ts:400;
@@ -70,3 +78,8 @@ subplot(2,1,2)
 plot(t,x(:,4), t,x(:,5), t,x(:,6));
 title('Velocities w controller')
 legend('surge vel', 'sway vel', 'yaw vel')
+
+%% Save stuff
+N = [eye(3) zeros(3)] * 10; % This one is properbly wrong
+
+save('3_dof', 'Ad', 'Bd', 'Cd', 'K', 'N')
