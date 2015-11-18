@@ -21,7 +21,7 @@ C = [eye(3) zeros(3); zeros(3) zeros(3)];
 ts= 0.1; % sample time
 sys = ss(A,B,C,0);
 sysd = c2d(sys,ts,'zoh');
-
+A
 Ad = sysd.a;
 Bd = sysd.b;
 Cd = sysd.c;
@@ -44,14 +44,16 @@ title('Velocities w/o controller')
 legend('surge vel', 'sway vel', 'yaw vel')
 %% LQR
 Q = eye(6);
-Q(4,4) = 0.5;
-Q(5,5) = 0.5;
+Q(1,1) = 2;
+Q(2,2) = 2;
+Q(4,4) = 0.25;
+Q(5,5) = 0.25;
 Q(6,6) = 2;
 
 R = eye(3);
 R(1,1) = 1/500;
 R(2,2) = 1/500;
-R(3,3) = 100;
+R(3,3) = 1;
 
 K = lqr(A,B,Q,R);
 P = eig(A-B*K);
