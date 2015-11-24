@@ -2,6 +2,7 @@
 
 import rospy
 import serial
+import gpsfunctions
 
 from aauship.msg import *
 
@@ -68,11 +69,9 @@ class GPS2():
                     #print data_arr[1]
                     gps_msg.time = int(float(data_arr[1]))
                     #print "time:", int(float(data_arr[1]))
-                    latitude = float(data_arr[2][0:2]) + (float(data_arr[2][5:7])/60 + float(data_arr[2][2:4]))/60
-                    gps_msg.latitude = latitude
-                    #print "lat:", float(data_arr[2])
-                    longitude = float(data_arr[4][0:3]) + (float(data_arr[4][6:8])/60 + float(data_arr[4][3:5]))/60
-                    gps_msg.longitude = longitude
+                    lat, lng = gpsfunctions.nmea2decimal(float(data_arr[2]), data_arr[3], float(data_arr[4]), data_arr[5])
+                    gps_msg.latitude = lat
+                    gps_msg.longitude = lng
                     #print "long:", float(data_arr[4])
                     gps_msg.fix = int(data_arr[6])
                     #print "fix:", int(data_arr[6])
@@ -97,6 +96,7 @@ class GPS2():
                     # send packet
                     print "GPS_MSG:", gps_msg
                     self.pub.publish(gps_msg)
+                    gps_msg = GPS()
                     GPGGA_received = False
                     GPGGA_received = False
             except:
