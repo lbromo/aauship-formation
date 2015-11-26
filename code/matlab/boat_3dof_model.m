@@ -54,13 +54,13 @@ R(1,1) = 1/500;
 R(2,2) = 1/500;
 R(3,3) = 1;
 
-K = lqr(A,B,Q,R);
+LQR = lqr(A,B,Q,R);
 %Poles = eig(A-B*K);
 
 %K = place(A,B,Poles);
 
 ts= 0.1;
-sys_cl = ss(A-B*K,B,C,0);
+sys_cl = ss(A-B*LQR,B,C,0);
 sysd_cl = c2d(sys_cl,ts,'zoh');
 
 % Step cloased loop system
@@ -80,6 +80,4 @@ title('Velocities w controller')
 legend('surge vel', 'sway vel', 'yaw vel')
 
 %% Save stuff
-N = [eye(3) zeros(3)] * 1000; % This one is properbly wrong
-
-save('3_dof', 'Ad', 'Bd', 'Cd', 'K', 'N')
+save('3_dof', 'Ad', 'Bd', 'Cd', 'LQR')
