@@ -15,13 +15,12 @@ A = [zeros(3) eye(3); zeros(3) -inv(M) * D];
 B = [zeros(3); inv(M)];
 
 % We care bout [N E psi]'
-C = [eye(3) zeros(3); zeros(3) zeros(3)];   
-
+C = eye(6);
 
 ts= 0.1; % sample time
 sys = ss(A,B,C,0);
 sysd = c2d(sys,ts,'zoh');
-A
+
 Ad = sysd.a;
 Bd = sysd.b;
 Cd = sysd.c;
@@ -55,13 +54,13 @@ R(1,1) = 1/500;
 R(2,2) = 1/500;
 R(3,3) = 1;
 
-K = lqr(A,B,Q,R);
-P = eig(A-B*K);
+LQR = lqr(A,B,Q,R);
+%Poles = eig(A-B*K);
 
-K = place(A,B,P);
+%K = place(A,B,Poles);
 
 ts= 0.1;
-sys_cl = ss(A-B*K,B,C,0);
+sys_cl = ss(A-B*LQR,B,C,0);
 sysd_cl = c2d(sys_cl,ts,'zoh');
 
 % Step cloased loop system
@@ -75,13 +74,10 @@ subplot(2,1,1)
 plot(t,x(:,1), t,x(:,2), t,x(:,3));
 title('Postitions w controller')
 legend('surge pos', 'sway pos', 'yaw pos')
-
 subplot(2,1,2)
 plot(t,x(:,4), t,x(:,5), t,x(:,6));
 title('Velocities w controller')
 legend('surge vel', 'sway vel', 'yaw vel')
 
 %% Save stuff
-N = [eye(3) zeros(3)] * 10; % This one is properbly wrong
-
-save('3_dof', 'Ad', 'Bd', 'Cd', 'K', 'N')
+save('3_dof', 'Ad', 'Bd', 'Cd', 'LQR')
