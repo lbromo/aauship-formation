@@ -37,7 +37,7 @@ def plos_EBS(x_k,x_k_1,y_k,y_k_1,x,y,n,L):
 		if delta_x > 0:
 			x_los = (-b + math.sqrt(b**2 - 4*a*c) )/(2*a)
 		else:  #delta_x < 0
-			x_los = (-b - sqrt(b**2 - 4*a*c) )/(2*a);
+			x_los = (-b - math.sqrt(b**2 - 4*a*c) )/(2*a);
 	
 		y_los = d*(x_los - e) + f;
 	return x_los,y_los;
@@ -67,21 +67,17 @@ e = []
 # Reference Vector: Updates with LOS pathing
 ref = []
 # Waypoint Table
-waypoint_table = [[0, 1],
-				[3, 1],
-				[2, 10],
-				[-5, 3],
-				[2, 1]]
+waypoint_table = [[9.2,9.2], [9.4,9.4], [9.2,9.4], [9.0, 9.0]]
 # Initial conditions 
-x[0] = np.matrix('0; 0; 0; 0; 0; 0')
+x[0] = np.matrix('9; 9; 0; 0; 0; 0')
 distance = []
-n = 1 # Boat search radius
-L = 0.5 # Boat Length
-x_k = waypoint_table[1][0]
-y_k = waypoint_table[1][1]
+n = 2 # Boat search radius
+L = 0.05 # Boat Length
+x_k = waypoint_table[0][0]
+y_k = waypoint_table[0][1]
 x_k_1 = 0
 y_k_1 = 0
-acceptance = 0.1
+acceptance = 0.01
 
 i = 0
 
@@ -100,13 +96,15 @@ while True:
     y.append(R * (C*x[-1])) 
 
     # Reference by LOS Pathing
-    x_los,y_los = plos_EBS(x_k,x_k_1,y_k,y_k_1,float(y[-1][0]),float(y[-1][1]),n,L);
-    
-    if x_los > x_k:
+    x_los,y_los = plos_EBS(x_k,x_k_1,y_k,y_k_1,float(y[-1][0]),float(y[-1][1]),n,L);    
+    print "[1]", x_los,y_los
+    if abs(x_los) > x_k:
     	x_los = x_k
-
-    if y_los > y_k:
+    if abs(y_los) > y_k:
     	y_los = y_k
+
+    print "[2]", x_los,y_los
+
 
     ref.append(np.matrix('%s; %s; 0; 0; 0; 0' % (x_los, y_los)))
 
@@ -124,8 +122,11 @@ while True:
     		break
     	x_k = waypoint_table[i][0]
     	y_k = waypoint_table[i][1]
+        print x_k, y_k
     	x_k_1 = waypoint_table[i-1][0]
     	y_k_1 = waypoint_table[i-1][1]
+        print x_k_1, y_k_1
+
 
 # Export signals
 e_north = [float(e[i][0]) for i in range(len(e)-1) ]
