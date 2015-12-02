@@ -97,14 +97,22 @@ while True:
 
     # Reference by LOS Pathing
     x_los,y_los = plos_EBS(x_k,x_k_1,y_k,y_k_1,float(y[-1][0]),float(y[-1][1]),n,L);    
-    print "[1]", x_los,y_los
-    if abs(x_los) > x_k:
-    	x_los = x_k
-    if abs(y_los) > y_k:
-    	y_los = y_k
+    print "[N]", x_los,y_los
 
-    print "[2]", x_los,y_los
+    if (abs(x_k) - abs(float(y[-1][0]))) > 0:
+        if abs(x_los) > x_k:
+            x_los = x_k
+        if abs(y_los) > y_k:
+            y_los = y_k
 
+    if (abs(x_k) - abs(float(y[-1][0]))) < 0:
+        if abs(x_los) < x_k:
+            x_los = x_k
+        if abs(y_los) < y_k:
+            y_los = y_k
+
+    print "[T]", x_los,y_los
+    print "Difference", (abs(x_k) - abs(float(y[-1][0])))
 
     ref.append(np.matrix('%s; %s; 0; 0; 0; 0' % (x_los, y_los)))
 
@@ -122,10 +130,10 @@ while True:
     		break
     	x_k = waypoint_table[i][0]
     	y_k = waypoint_table[i][1]
-        print x_k, y_k
+        print 'Final', x_k, y_k
     	x_k_1 = waypoint_table[i-1][0]
     	y_k_1 = waypoint_table[i-1][1]
-        print x_k_1, y_k_1
+        print 'Current', x_k_1, y_k_1
 
 
 # Export signals
