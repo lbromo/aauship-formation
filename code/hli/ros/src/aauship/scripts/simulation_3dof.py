@@ -80,7 +80,7 @@ y_k_1 = 0
 acceptance = 0.01
 
 i = 0
-
+j = 0
 while True:
     psi = x[-1][2]
     # ROTATION MATRIX
@@ -111,10 +111,13 @@ while True:
         x_k_1 = waypoint_table[i-1][0]
         y_k_1 = waypoint_table[i-1][1]
         print 'Current', x_k_1, y_k_1
+        plt.gca().add_artist(plt.Circle((y_k,x_k),acceptance,color='r', alpha=.9))
+
+
 
     # Reference by LOS Pathing
     x_los,y_los = plos_EBS(x_k,x_k_1,y_k,y_k_1,float(y[-1][0]),float(y[-1][1]),n,L);    
-    print "[N]", x_los,y_los
+    #print "[N]", x_los,y_los
 
     # If we're going UP in North
     if (x_k > x_k_1):
@@ -134,9 +137,13 @@ while True:
         if y_los < y_k:
             y_los = y_k
 
-    print "[T]", x_los,y_los
-    print "[B]", float(y[-1][0]), float(y[-1][1])
-    
+    #print "[T]", x_los,y_los
+    #print "[B]", float(y[-1][0]), float(y[-1][1])
+
+    if j % 15 == 0:
+        plt.gca().add_artist(plt.Circle((float(y[-1][1]),float(y[-1][0])),n*L,color='g', alpha=0.1))
+    j += 1
+
     #Reference equal to the LOS position
     ref.append(np.matrix('%s; %s; 0; 0; 0; 0' % (x_los, y_los)))
 
@@ -148,9 +155,8 @@ while True:
     x.append(A*x[-1] + B*u[-1])
     
 
-plt.gca().set_xlim((8.8,9.2))
-plt.gca().set_ylim((8.8,9.2))
-plt.gca().add_artist(plt.Circle((float(y[-1][0]),float(y[-1][1])),n*L,color='g'))
+plt.gca().set_xlim((8.9,9.1))
+plt.gca().set_ylim((9,9.2))
 
 # Export signals
 e_north = [float(e[i][0]) for i in range(len(e)-1) ]
