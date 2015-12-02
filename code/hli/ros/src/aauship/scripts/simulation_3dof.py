@@ -66,14 +66,19 @@ u = []
 e = []
 # Reference Vector: Updates with LOS pathing
 ref = []
-
+# Waypoint Table
+waypoint_table = [[0, 1],
+				[3, 1],
+				[2, 10],
+				[-5, 3],
+				[2, 1]]
 # Initial conditions 
-x[0] = np.matrix('0; 0; 2; 0; 0; 0')
+x[0] = np.matrix('0; 0; 0; 0; 0; 0')
 distance = []
 n = 1 # Boat search radius
 L = 0.5 # Boat Length
-x_k = 1 
-y_k = 1
+x_k = waypoint_table[1][0]
+y_k = waypoint_table[1][1]
 x_k_1 = 0
 y_k_1 = 0
 acceptance = 0.1
@@ -115,13 +120,12 @@ while True:
     if distance[-1] < acceptance:
     	print 'Loop number', i 
     	i += 1
-    	if i > 10:
+    	if i > len(waypoint_table)-1:
     		break
-    	else:
-    		x_k += 1
-    		y_k += 0.5
-
-
+    	x_k = waypoint_table[i][0]
+    	y_k = waypoint_table[i][1]
+    	x_k_1 = waypoint_table[i-1][0]
+    	y_k_1 = waypoint_table[i-1][1]
 
 # Export signals
 e_north = [float(e[i][0]) for i in range(len(e)-1) ]
@@ -130,7 +134,7 @@ e_psi = [float(e[i][2]) for i in range(len(e)-1) ]
 
 north = [float(y[i][0]) for i in range(len(y)-1)]
 east = [float(y[i][1]) for i in range(len(y)-1)]
-psi = [float(y[i][2]) for i in range(len(x)-1)]
+psi = [float(y[i][2]) for i in range(len(y)-1)]
 
 vel_u = [float(x[i][3]) for i in range(len(x)-1)]
 vel_v = [float(x[i][4]) for i in range(len(x)-1)]
@@ -176,7 +180,7 @@ plt.savefig('step_pos.eps', format='eps', dpi=1000, bbox_inches='tight')
 plt.show()
 
 # Heading Vector Representation
-Eih,Nih,Eoh,Noh = zip([east,north,0.1*(east+math.sin(psi)),0.1*(north+math.cos(psi))])
+Eih,Nih,Eoh,Noh = zip([east,north, [0.1*(east[i]+math.sin(psi[i])) for i in range(len(psi))], [0.1*(north[i]+math.cos(psi[i])) for i in range(len(psi))]])
 plt.quiver(Eih,Nih,Eoh,Noh,angles='xy',scale_units='xy',scale=1)
 '''
 
