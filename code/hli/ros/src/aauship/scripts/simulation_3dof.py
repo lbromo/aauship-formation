@@ -39,11 +39,8 @@ def plos_EBS(x_k,x_k_1,y_k,y_k_1,x,y,n,L):
 		else:  #delta_x < 0
 			x_los = (-b - sqrt(b**2 - 4*a*c) )/(2*a);
 	
-	y_los = d*(x_los - e) + f;
+		y_los = d*(x_los - e) + f;
 	return x_los,y_los;
-
-
-
 
 
 
@@ -71,7 +68,7 @@ e = []
 ref = []
 
 # Initial conditions 
-x[0] = np.matrix('0; 0; 0; 0; 0; 0')
+x[0] = np.matrix('0; 0; 2; 0; 0; 0')
 distance = []
 n = 1 # Boat search radius
 L = 0.5 # Boat Length
@@ -99,6 +96,12 @@ while True:
 
     # Reference by LOS Pathing
     x_los,y_los = plos_EBS(x_k,x_k_1,y_k,y_k_1,float(y[-1][0]),float(y[-1][1]),n,L);
+    
+    if x_los > x_k:
+    	x_los = x_k
+
+    if y_los > y_k:
+    	y_los = y_k
 
     ref.append(np.matrix('%s; %s; 0; 0; 0; 0' % (x_los, y_los)))
 
@@ -171,10 +174,11 @@ plt.grid()
 pylab.title('Response in the NED frame')
 plt.savefig('step_pos.eps', format='eps', dpi=1000, bbox_inches='tight')
 plt.show()
-'''
+
 # Heading Vector Representation
 Eih,Nih,Eoh,Noh = zip([east,north,0.1*(east+math.sin(psi)),0.1*(north+math.cos(psi))])
 plt.quiver(Eih,Nih,Eoh,Noh,angles='xy',scale_units='xy',scale=1)
+'''
 
 # Velocities Representation
 plt.plot(vel_u, label='Velocity X')
