@@ -67,12 +67,12 @@ e = []
 # Reference Vector: Updates with LOS pathing
 ref = []
 # Waypoint Table
-waypoint_table = [[9.2,9.2], [9.4,9.4], [9.2,9.4], [9.0, 9.0]]
+waypoint_table = [[9.1,9.1], [9.2,9.0], [9.1,8.9], [9.0, 9.0]]
 # Initial conditions 
 x[0] = np.matrix('9; 9; 0; 0; 0; 0')
 distance = []
 n = 2 # Boat search radius
-L = 0.05 # Boat Length
+L = 0.005 # Boat Length
 x_k = waypoint_table[0][0]
 y_k = waypoint_table[0][1]
 x_k_1 = 0
@@ -80,7 +80,7 @@ y_k_1 = 0
 acceptance = 0.01
 
 i = 0
-
+j = 0
 while True:
     psi = x[-1][2]
     # ROTATION MATRIX
@@ -95,25 +95,56 @@ while True:
     # Y in VP coordinates to NED
     y.append(R * (C*x[-1])) 
 
+    # Are we in the acceptance radius now? 
+    # Yes > Update waypoint before LOS algorithm
+    # No > Calculate LOS position
+    distance.append(math.sqrt((x_k-y[-1][0])**2+(y_k-y[-1][1])**2))
+
+    if distance[-1] < acceptance:
+        print 'Loop number', i 
+        i += 1
+        if i > len(waypoint_table)-1:
+            break
+        x_k = waypoint_table[i][0]
+        y_k = waypoint_table[i][1]
+        print 'Final', x_k, y_k
+        x_k_1 = waypoint_table[i-1][0]
+        y_k_1 = waypoint_table[i-1][1]
+        print 'Current', x_k_1, y_k_1
+        plt.gca().add_artist(plt.Circle((y_k,x_k),acceptance,color='r', alpha=.9))
+
+
+
     # Reference by LOS Pathing
     x_los,y_los = plos_EBS(x_k,x_k_1,y_k,y_k_1,float(y[-1][0]),float(y[-1][1]),n,L);    
-    print "[N]", x_los,y_los
+    #print "[N]", x_los,y_los
 
-    if (abs(x_k) - abs(float(y[-1][0]))) > 0:
-        if abs(x_los) > x_k:
+    # If we're going UP in North
+    if (x_k > x_k_1):
+        if x_los > x_k:
             x_los = x_k
-        if abs(y_los) > y_k:
+    # If we're going DOWN in North
+    if (x_k < x_k_1):
+        if x_los < y_k:
+            x_los = x_k
+
+    # If we're going RIGHT in East
+    if (y_k > y_k_1):
+        if y_los > y_k:
+            y_los = y_k
+    # If we're going LEFT in East
+    if (y_k < y_k_1):
+        if y_los < y_k:
             y_los = y_k
 
-    if (abs(x_k) - abs(float(y[-1][0]))) < 0:
-        if abs(x_los) < x_k:
-            x_los = x_k
-        if abs(y_los) < y_k:
-            y_los = y_k
+    #print "[T]", x_los,y_los
+    #print "[B]", float(y[-1][0]), float(y[-1][1])
 
-    print "[T]", x_los,y_los
-    print "Difference", (abs(x_k) - abs(float(y[-1][0])))
+    if j % 15 == 0:
+        plt.gca().add_artist(plt.Circle((float(y[-1][1]),float(y[-1][0])),n*L,color='g', alpha=0.1))
+    j += 1
 
+    #Reference equal to the LOS position
     ref.append(np.matrix('%s; %s; 0; 0; 0; 0' % (x_los, y_los)))
 
     # Error in VP coordinates
@@ -122,19 +153,10 @@ while True:
     # WHERE THE MAGIC HAPPENS    
     u.append(LQR*e[-1])
     x.append(A*x[-1] + B*u[-1])
-    distance.append(math.sqrt((x_k-y[-1][0])**2+(y_k-y[-1][1])**2))
-    if distance[-1] < acceptance:
-    	print 'Loop number', i 
-    	i += 1
-    	if i > len(waypoint_table)-1:
-    		break
-    	x_k = waypoint_table[i][0]
-    	y_k = waypoint_table[i][1]
-        print 'Final', x_k, y_k
-    	x_k_1 = waypoint_table[i-1][0]
-    	y_k_1 = waypoint_table[i-1][1]
-        print 'Current', x_k_1, y_k_1
+    
 
+plt.gca().set_xlim((8.9,9.1))
+plt.gca().set_ylim((9,9.2))
 
 # Export signals
 e_north = [float(e[i][0]) for i in range(len(e)-1) ]
@@ -180,7 +202,7 @@ pylab.title('Step response')
 plt.savefig('step.eps', format='eps', dpi=1000, bbox_inches='tight')
 '''
 # Representation of Position in NED FRAME
-plt.scatter(east, north)
+plt.gca().scatter(east, north)
 pylab.ylabel('North')
 pylab.xlabel('East')
 plt.grid()
