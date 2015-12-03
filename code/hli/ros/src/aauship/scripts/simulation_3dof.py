@@ -17,6 +17,7 @@ def plos_EBS(x_k,x_k_1,y_k,y_k_1,x,y,n,L):
 
 	delta_x = x_k - x_k_1
 	delta_y = y_k - y_k_1
+	
 
 	if delta_x == 0: 
 		x_los = x_k_1 #x_los = x_k;
@@ -33,6 +34,12 @@ def plos_EBS(x_k,x_k_1,y_k,y_k_1,x,y,n,L):
 		a = 1 + d**2
 		b = 2*(d*g - d*y - x)
 		c = x**2 + y**2 + g**2 - (n*L)**2 - 2*y*g
+
+		#ERROR HANDLING
+		if (b**2 - 4*a*c) < 0:
+			print 'ERROR'
+			print '[W]',x_k,y_k
+			print '[B]',x,y
 
 		if delta_x > 0:
 			x_los = (-b + math.sqrt(b**2 - 4*a*c) )/(2*a)
@@ -67,17 +74,19 @@ e = []
 # Reference Vector: Updates with LOS pathing
 ref = []
 # Waypoint Table
-waypoint_table = [[9.1,9.1], [9.2,9.0], [9.1,8.9], [9.0, 9.0]]
+#waypoint_table = [[9.1,9.1], [9.2,9.0], [9.1,8.9], [9.0, 9.0]]
+waypoint_table = [[57.01529686406438,9.977692812681198], [57.01541295257421,9.97741587460041], [57.01531876758453,9.977204650640488], [57.015207789616156, 9.977458789944649]]
 # Initial conditions 
-x[0] = np.matrix('9; 9; 0; 0; 0; 0')
+#x[0] = np.matrix('9; 9; 0; 0; 0; 0')
+x[0] = np.matrix('57.015207789616156; 9.977458789944649; 0; 0; 0; 0')
 distance = []
-n = 2 # Boat search radius
-L = 0.005 # Boat Length
+n = 3 # Boat search radius
+L = 0.00001 # Boat Length
 x_k = waypoint_table[0][0]
 y_k = waypoint_table[0][1]
-x_k_1 = 0
-y_k_1 = 0
-acceptance = 0.01
+x_k_1 = 57.015207789616156
+y_k_1 = 9.977458789944649
+acceptance = 0.00002
 
 i = 0
 j = 0
@@ -99,25 +108,26 @@ while True:
     # Yes > Update waypoint before LOS algorithm
     # No > Calculate LOS position
     distance.append(math.sqrt((x_k-y[-1][0])**2+(y_k-y[-1][1])**2))
-
     if distance[-1] < acceptance:
-        print 'Loop number', i 
         i += 1
         if i > len(waypoint_table)-1:
             break
         x_k = waypoint_table[i][0]
         y_k = waypoint_table[i][1]
-        print 'Final', x_k, y_k
         x_k_1 = waypoint_table[i-1][0]
         y_k_1 = waypoint_table[i-1][1]
-        print 'Current', x_k_1, y_k_1
         plt.gca().add_artist(plt.Circle((y_k,x_k),acceptance,color='r', alpha=.9))
+
+        print 'Loop number', i 
+        print '[W]', x_k, y_k
 
 
 
     # Reference by LOS Pathing
     x_los,y_los = plos_EBS(x_k,x_k_1,y_k,y_k_1,float(y[-1][0]),float(y[-1][1]),n,L);    
-    #print "[N]", x_los,y_los
+    
+    
+    print "[N]", x_los,y_los
 
     # If we're going UP in North
     if (x_k > x_k_1):
@@ -125,7 +135,7 @@ while True:
             x_los = x_k
     # If we're going DOWN in North
     if (x_k < x_k_1):
-        if x_los < y_k:
+        if x_los < x_k:
             x_los = x_k
 
     # If we're going RIGHT in East
@@ -137,8 +147,8 @@ while True:
         if y_los < y_k:
             y_los = y_k
 
-    #print "[T]", x_los,y_los
-    #print "[B]", float(y[-1][0]), float(y[-1][1])
+    print "[T]", x_los,y_los
+    print "[B]", float(y[-1][0]), float(y[-1][1])
 
     if j % 15 == 0:
         plt.gca().add_artist(plt.Circle((float(y[-1][1]),float(y[-1][0])),n*L,color='g', alpha=0.1))
@@ -155,8 +165,8 @@ while True:
     x.append(A*x[-1] + B*u[-1])
     
 
-plt.gca().set_xlim((8.9,9.1))
-plt.gca().set_ylim((9,9.2))
+plt.gca().set_xlim((9.9771,9.9777))
+plt.gca().set_ylim((57.0151,57.0155))
 
 # Export signals
 e_north = [float(e[i][0]) for i in range(len(e)-1) ]
