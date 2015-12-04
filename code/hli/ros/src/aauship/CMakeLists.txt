@@ -70,6 +70,7 @@ add_message_files(
   GPS.msg
   controlTest.msg
   BatteryMonitor.msg
+  KFStates.msg
 )
 
 ## Generate services in the 'srv' folder

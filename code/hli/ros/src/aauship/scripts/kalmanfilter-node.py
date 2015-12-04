@@ -89,7 +89,7 @@ class KF(object):
         self.subimu  = rospy.Subscriber('imu', ADIS16405, self.imucb)
         self.subahrs = rospy.Subscriber('attitude', Quaternion, self.ahrscb)
         self.sub = rospy.Subscriber('lli_input', LLIinput, self.llicb)
-        self.pub = rospy.Publisher('kf_statesnew', Float64MultiArray, queue_size=1)
+        self.pub = rospy.Publisher('kf_statesnew', KFStates, queue_size=1)
         self.refpath = rospy.Publisher('refpath', Path, queue_size=3, latch=True)
         self.keepoutpath = rospy.Publisher('keepout', Path, queue_size=3, latch=True)
         
@@ -243,10 +243,19 @@ class KF(object):
         self.kftrackpath.publish(self.kftrackmsg)
 
 
-        self.pubmsg = Float64MultiArray()
-        for a in self.x_hat:
-            self.pubmsg.data.append(a)
-            #print(a)
+        self.pubmsg = KFStates()
+
+        self.pubmsg.x = self.x_hat[0]
+        self.pubmsg.y = self.x_hat[1]
+        self.pubmsg.phi = self.x_hat[2]
+        self.pubmsg.theta = self.x_hat[3]
+        self.pubmsg.psi = self.x_hat[4]
+        self.pubmsg.u = self.x_hat[5]
+        self.pubmsg.v = self.x_hat[6]
+        self.pubmsg.p = self.x_hat[7]
+        self.pubmsg.q = self.x_hat[8]
+        self.pubmsg.r = self.x_hat[9]
+
         self.pub.publish(self.pubmsg)
         #print(self.pubmsg)
    
