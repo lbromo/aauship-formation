@@ -24,7 +24,7 @@ sysd = c2d(sys,ts,'zoh');
 Ad = sysd.a;
 Bd = sysd.b;
 Cd = sysd.c;
-
+    
 % Step discrete model
 x0 = [0 0 0 1 1 0]';
 figure(1)
