@@ -247,14 +247,7 @@ class KF(object):
 
         self.pubmsg.x = self.x_hat[0]
         self.pubmsg.y = self.x_hat[1]
-        self.pubmsg.phi = self.x_hat[2]
-        self.pubmsg.theta = self.x_hat[3]
-        self.pubmsg.psi = self.x_hat[4]
-        self.pubmsg.u = self.x_hat[5]
-        self.pubmsg.v = self.x_hat[6]
-        self.pubmsg.p = self.x_hat[7]
-        self.pubmsg.q = self.x_hat[8]
-        self.pubmsg.r = self.x_hat[9]
+        self.pubmsg.psi = self.x_hat[6]
 
         self.pub.publish(self.pubmsg)
         #print(self.pubmsg)
