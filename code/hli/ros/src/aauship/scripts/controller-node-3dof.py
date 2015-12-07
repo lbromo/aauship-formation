@@ -83,6 +83,7 @@ class Controller(object):
 		# print("r:", self.r)
 
         def send_controller_output(self):
+                m = [0, 0]
                 R = np.matrix( [
                         [math.cos(self.psi[self.i % 2]), -math.sin(self.psi[self.i % 2]), 0, 0, 0, 0],
                         [math.sin(self.psi[self.i % 2]), math.cos(self.psi[self.i % 2]), 0, 0, 0, 0],
@@ -113,12 +114,32 @@ class Controller(object):
                 print (distance, x_los, y_los)
 
                 msg = LLIinput()
+
+                if(u[0] > 0):
+                        m[0] = (u[0] + 26.84) / 0.2746
+                        if m[0] < 70:
+                                m[0] = 70
+                elif(u[0] < 0):
+                        m[0] = (u[0] + 7.318) / 0.1152
+                        if m[0] > -70:
+                                m[0] = -70
+
+                if(u[1] > 0):
+                        m[1] = (u[1] + 26.84) / 0.2746
+                        if m[1] < 70:
+                                m[1] = 70
+                elif(u[1] < 0):
+                        m[1] = (u[1] + 7.318) / 0.1152
+                        if m[1] > -70:
+                                m[1] = -70
+                
+                
                 msg.DevID = 10
                 msg.MsgID = 3
                 msg.Data = u[0]
                 self.pub.publish(msg)
                 msg.DevID = 10
-                msg.MsgID = 3
+                msg.MsgID = 5
                 msg.Data = u[1]
                 self.pub.publish(msg)
                 

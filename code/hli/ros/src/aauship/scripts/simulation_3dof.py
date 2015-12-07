@@ -172,7 +172,12 @@ while True:
     # WHERE THE MAGIC HAPPENS    
     u.append(LQR*e[-1])
 
-    to_motors = [(u[-1][0] + 26.84) / 0.2746,  (u[-1][1] + 26.84) / 0.2746]
+    
+    if (u > 0):
+            to_motors = [(u[-1][0] + 26.84) / 0.2746,  (u[-1][1] + 26.84) / 0.2746]
+
+    elif (u < 0):
+            to_motors = [(u[-1][0] + 7.318) / 0.1152,  (u[-1][1] + 7.318) / 0.1152]
 
     print "[M]", to_motors
 
