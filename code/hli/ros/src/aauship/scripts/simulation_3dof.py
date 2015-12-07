@@ -83,8 +83,8 @@ ref = []
 waypoint_table = [[57.015207789616156,9.977458789944649],[57.01529686406438,9.977692812681198], [57.01541295257421,9.97741587460041], [57.01531876758453,9.977204650640488], [57.015207789616156, 9.977458789944649]]
 # Initial conditions 
 #x[0] = np.matrix('9; 9; 0; 0; 0; 0')
-x_0 = (waypoint_table[0][0] - CENTER_lat) * SCALE
-y_0 = (waypoint_table[0][1] - CENTER_lng) * SCALE
+x_0 = 0
+y_0 = 0
 x[0] = np.matrix('%s; %s; 0; 0; 0; 0' % (x_0, y_0))
 distance = []
 n = 5 # Boat search radius

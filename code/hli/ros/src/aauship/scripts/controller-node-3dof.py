@@ -15,10 +15,12 @@ import math
 
 class Controller(object):
         
-        acceptance = 0.00002
-        n = 3 # Boat search radius
-        L = 0.00001 # Boat Length
-
+    acceptance = 2
+    n = 3 # Boat search radius
+    L = 1 # Boat Length
+	CENTER_lat = 57.01531876758453
+	CENTER_lng = 9.977239519357681
+	SCALE = 1 / 0.00001
         
 	def __init__(self):
                 self.i = 0
@@ -51,8 +53,8 @@ class Controller(object):
 
 
                 self.ref = np.matrix('%s; %s; 0; 0; 0; 0' % (self.wp.lat, self.wp.long))
-                self.x_k = self.wp.lat
-                self.y_k = self.wp.long
+                self.x_k = (self.wp.lat - Controller.CENTER_lat)*Controller.SCALE
+                self.y_k = (self.wp.long - Controller.CENTER_lng)*Controller.SCALE
                 self.x_k_1 = 0
                 self.y_k_1 = 0
 
@@ -101,9 +103,8 @@ class Controller(object):
                         print self.wp
                         self.x_k_1 = self.x_k
                         self.y_k_1 = self.y_k
-                        self.x_k = self.wp.lat
-                        self.y_k = self.wp.long
-
+                        self.x_k = (self.wp.lat - Controller.CENTER_lat)*Controller.SCALE
+                        self.y_k = (self.wp.long - Controller.CENTER_lng)*Controller.SCALE
                 
                 x_los,y_los = self.plos_EBS(self.x_k,self.x_k_1,self.y_k,self.y_k_1,float(y[0]),float(y[1]),Controller.n,Controller.L)
                 ref = np.matrix('%s; %s; 0; 0; 0; 0' % (x_los, y_los))
