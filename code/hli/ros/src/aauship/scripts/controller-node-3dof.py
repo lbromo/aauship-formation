@@ -36,14 +36,14 @@ class Controller(object):
                 # LQR Proportional Controller
                 self.LQR = matrices['LQR']
 
-		rospy.init_node('Controller')
+                rospy.init_node('Controller')
                 
                 rospy.wait_for_service('wp')
                 self.wp_srv = rospy.ServiceProxy('wp', Waypoint)
                 self.wp = self.wp_srv()
                 print self.wp
 
-		data_sub = message_filters.Subscriber('kf_statesnew', KFStates)
+                data_sub = message_filters.Subscriber('kf_statesnew', KFStates)
                 gps_sub = message_filters.Subscriber('gps2', GPS)
                 self.pub = rospy.Publisher('lli_input', LLIinput, queue_size=1)
                 ts = message_filters.TimeSynchronizer([data_sub, gps_sub], 1)
