@@ -84,16 +84,16 @@ waypoint_table = [[57.015207789616156,9.977458789944649],[57.01529686406438,9.97
 # Initial conditions 
 #x[0] = np.matrix('9; 9; 0; 0; 0; 0')
 x_0 = (waypoint_table[0][0] - CENTER_lat) * SCALE
-y_0 = (waypoint_table[0][0] - CENTER_lat) * SCALE
+y_0 = (waypoint_table[0][1] - CENTER_lng) * SCALE
 x[0] = np.matrix('%s; %s; 0; 0; 0; 0' % (x_0, y_0))
 distance = []
-n = 1 # Boat search radius
+n = 5 # Boat search radius
 L = 1 # Boat Length
 x_k = (waypoint_table[0][0] - CENTER_lat) * SCALE
 y_k = (waypoint_table[0][1] - CENTER_lng) * SCALE 
 x_k_1 = x_0
 y_k_1 = y_0
-acceptance = 2
+acceptance = 1
 
 i = 0
 j = 0
@@ -179,8 +179,8 @@ while True:
     x.append(A*x[-1] + B*u[-1])
     
 
-plt.gca().set_xlim((9.9771,9.9777))
-plt.gca().set_ylim((57.0151,57.0155))
+plt.gca().set_xlim((-20,50))
+plt.gca().set_ylim((-20,20))
 
 # Export signals
 e_north = [float(e[i][0]) for i in range(len(e)-1) ]
@@ -201,7 +201,7 @@ torque = [float(u[i][2]) for i in range(len(u)-1)]
 
 reference = [float(ref[i][0]) for i in range(len(ref)-1) ]
 
-print Fx
+#print Fx
 '''
 # Representation of errors
 plt.plot(e_north, label='North error')
