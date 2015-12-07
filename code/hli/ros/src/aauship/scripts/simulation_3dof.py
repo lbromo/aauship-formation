@@ -174,7 +174,7 @@ while True:
 
     to_motors = [(u[-1][0] + 26.84) / 0.2746,  (u[-1][1] + 26.84) / 0.2746]
 
-    #print "[M]", to_motors
+    print "[M]", to_motors
 
     x.append(A*x[-1] + B*u[-1])
     
