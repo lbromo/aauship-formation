@@ -4,6 +4,11 @@ import scipy.io as sio
 import numpy as np
 import matplotlib.pyplot as plt
 
+CENTER_lat = 57.01531876758453
+CENTER_lng = 9.977239519357681
+
+SCALE = 1 / 0.00001
+
 def plos_EBS(x_k,x_k_1,y_k,y_k_1,x,y,n,L):
 	# Constant slope between to points:
 	#
@@ -78,15 +83,17 @@ ref = []
 waypoint_table = [[57.015207789616156,9.977458789944649],[57.01529686406438,9.977692812681198], [57.01541295257421,9.97741587460041], [57.01531876758453,9.977204650640488], [57.015207789616156, 9.977458789944649]]
 # Initial conditions 
 #x[0] = np.matrix('9; 9; 0; 0; 0; 0')
-x[0] = np.matrix('57.015207789616156; 9.977458789944649; 0; 0; 0; 0')
+x_0 = 0
+y_0 = 0
+x[0] = np.matrix('%s; %s; 0; 0; 0; 0' % (x_0, y_0))
 distance = []
-n = 3 # Boat search radius
-L = 0.00001 # Boat Length
-x_k = waypoint_table[0][0]
-y_k = waypoint_table[0][1]
-x_k_1 = 57.015207789616156
-y_k_1 = 9.977458789944649
-acceptance = 0.00002
+n = 1 # Boat search radius
+L = 1 # Boat Length
+x_k = (waypoint_table[0][0] - CENTER_lat) * SCALE
+y_k = (waypoint_table[0][1] - CENTER_lng) * SCALE 
+x_k_1 = x_0
+y_k_1 = y_0
+acceptance = 2
 
 i = 0
 j = 0
@@ -107,25 +114,27 @@ while True:
     # Are we in the acceptance radius now? 
     # Yes > Update waypoint before LOS algorithm
     # No > Calculate LOS position
+    print "[W]", x_k, y_k
+
     distance.append(math.sqrt((x_k-y[-1][0])**2+(y_k-y[-1][1])**2))
+    print '[D]', distance[-1]
     if distance[-1] < acceptance:
         i += 1
         if i > len(waypoint_table)-1:
             break
-        x_k = waypoint_table[i][0]
-        y_k = waypoint_table[i][1]
-        x_k_1 = waypoint_table[i-1][0]
-        y_k_1 = waypoint_table[i-1][1]
+        x_k = (waypoint_table[i][0] - CENTER_lat) * SCALE
+        y_k = (waypoint_table[i][1] - CENTER_lng) * SCALE
+        x_k_1 = (waypoint_table[i-1][0] - CENTER_lat) * SCALE 
+        y_k_1 = (waypoint_table[i-1][1] - CENTER_lng) * SCALE 
         plt.gca().add_artist(plt.Circle((y_k,x_k),acceptance,color='r', alpha=.9))
 
         print 'Loop number', i 
         print '[W]', x_k, y_k
 
 
-
+    
     # Reference by LOS Pathing
     x_los,y_los = plos_EBS(x_k,x_k_1,y_k,y_k_1,float(y[-1][0]),float(y[-1][1]),n,L);    
-    
     
     print "[N]", x_los,y_los
 
@@ -162,6 +171,11 @@ while True:
     
     # WHERE THE MAGIC HAPPENS    
     u.append(LQR*e[-1])
+
+    to_motors = [(u[-1][0] + 26.84) / 0.2746,  (u[-1][1] + 26.84) / 0.2746]
+
+    #print "[M]", to_motors
+
     x.append(A*x[-1] + B*u[-1])
     
 
@@ -187,6 +201,7 @@ torque = [float(u[i][2]) for i in range(len(u)-1)]
 
 reference = [float(ref[i][0]) for i in range(len(ref)-1) ]
 
+print Fx
 '''
 # Representation of errors
 plt.plot(e_north, label='North error')
