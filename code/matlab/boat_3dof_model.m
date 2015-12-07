@@ -17,7 +17,7 @@ B = [zeros(3); inv(M)];
 % We care bout [N E psi]'
 C = eye(6);
 
-ts= 0.1; % sample time
+ts= 0.2; % sample time
 sys = ss(A,B,C,0);
 sysd = c2d(sys,ts,'zoh');
 
@@ -43,8 +43,8 @@ title('Velocities w/o controller')
 legend('surge vel', 'sway vel', 'yaw vel')
 %% LQR
 Q = eye(6);
-Q(1,1) = 2;
-Q(2,2) = 2;
+Q(1,1) = 1;
+Q(2,2) = 1;
 Q(4,4) = 0.25;
 Q(5,5) = 0.25;
 Q(6,6) = 2;
