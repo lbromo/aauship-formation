@@ -76,73 +76,73 @@ class Controller(object):
         self.x = np.matrix([[self.lat[self.i % 2]], [self.long[self.i % 2]], [self.psi[self.i % 2]], [self.u], [self.v], [self.r]])
         self.send_controller_output()
         self.i += 1
-        # print('#'*80)
-        # print("N:", self.lat[self.i % 2])
-        # print("E:", self.long[self.i % 2])
-        # print("PSI:", self.psi[self.i % 2])
-        # print("u:", self.u)
-        # print("v:", self.v)
-        # print("r:", self.r)
+        #print('#'*80)
+        #print("N:", self.lat[self.i % 2])
+        #print("E:", self.long[self.i % 2])
+        #print("PSI:", self.psi[self.i % 2])
+        #print("u:", self.u)
+        #print("v:", self.v)
+        #print("r:", self.r)
 
-        def send_controller_output(self):
-            m = [0, 0]
-            R = np.matrix( [
-                [math.cos(self.psi[self.i % 2]), -math.sin(self.psi[self.i % 2]), 0, 0, 0, 0],
-                [math.sin(self.psi[self.i % 2]), math.cos(self.psi[self.i % 2]), 0, 0, 0, 0],
-                [0, 0, 1, 0, 0, 0],
-                [0, 0, 0, 1, 0, 0],
-                [0, 0, 0, 0, 1, 0],
-                [0, 0, 0, 0, 0, 1]
-            ] )
-            print self.x
-            y = R * self.C*self.x
+    def send_controller_output(self):
+        m = [0, 0]
+        R = np.matrix( [
+            [math.cos(self.psi[self.i % 2]), -math.sin(self.psi[self.i % 2]), 0, 0, 0, 0],
+            [math.sin(self.psi[self.i % 2]), math.cos(self.psi[self.i % 2]), 0, 0, 0, 0],
+            [0, 0, 1, 0, 0, 0],
+            [0, 0, 0, 1, 0, 0],
+            [0, 0, 0, 0, 1, 0],
+            [0, 0, 0, 0, 0, 1]
+        ] )
+        print self.x
+        y = R * self.C*self.x
+        
+        distance = math.sqrt((self.x_k-y[0])**2+(self.y_k-y[1])**2)
+        if distance < Controller.acceptance:
+            self.wp = self.wp_srv()
+            print self.wp
+            self.x_k_1 = self.x_k
+            self.y_k_1 = self.y_k
+            self.x_k = (self.wp.lat - Controller.CENTER_lat)*Controller.SCALE
+            self.y_k = (self.wp.long - Controller.CENTER_lng)*Controller.SCALE
             
-            distance = math.sqrt((self.x_k-y[0])**2+(self.y_k-y[1])**2)
-            if distance < Controller.acceptance:
-                self.wp = self.wp_srv()
-                print self.wp
-                self.x_k_1 = self.x_k
-                self.y_k_1 = self.y_k
-                self.x_k = (self.wp.lat - Controller.CENTER_lat)*Controller.SCALE
-                self.y_k = (self.wp.long - Controller.CENTER_lng)*Controller.SCALE
-                
-            x_los,y_los = self.plos_EBS(self.x_k,self.x_k_1,self.y_k,self.y_k_1,float(y[0]),float(y[1]),Controller.n,Controller.L)
-            ref = np.matrix('%s; %s; 0; 0; 0; 0' % (x_los, y_los))
-            e = R.transpose() * (self.ref - y)
-            
-            u = self.LQR * e
-            
-            print (distance, x_los, y_los)
-            
-            msg = LLIinput()
-            
-            if(u[0] > 0):
-                m[0] = (u[0] + 26.84) / 0.2746
-                if m[0] < 70:
-                    m[0] = 70
-            elif(u[0] < 0):
-                m[0] = (u[0] + 7.318) / 0.1152
-                if m[0] > -70:
-                    m[0] = -70
+        x_los,y_los = self.plos_EBS(self.x_k,self.x_k_1,self.y_k,self.y_k_1,float(y[0]),float(y[1]),Controller.n,Controller.L)
+        ref = np.matrix('%s; %s; 0; 0; 0; 0' % (x_los, y_los))
+        e = R.transpose() * (self.ref - y)
+        
+        u = self.LQR * e
+        
+        print (distance, x_los, y_los)
+        
+        msg = LLIinput()
+        
+        if(u[0] > 0):
+            m[0] = (u[0] + 26.84) / 0.2746
+            if m[0] < 70:
+                m[0] = 70
+        elif(u[0] < 0):
+            m[0] = (u[0] + 7.318) / 0.1152
+            if m[0] > -70:
+                m[0] = -70
 
-            if(u[1] > 0):
-                m[1] = (u[1] + 26.84) / 0.2746
-                if m[1] < 70:
-                    m[1] = 70
-            elif(u[1] < 0):
-                m[1] = (u[1] + 7.318) / 0.1152
-                if m[1] > -70:
-                    m[1] = -70
-                                        
-                
-            msg.DevID = 10
-            msg.MsgID = 3
-            msg.Data = u[0]
-            self.pub.publish(msg)
-            msg.DevID = 10
-            msg.MsgID = 5
-            msg.Data = u[1]
-            self.pub.publish(msg)
+        if(u[1] > 0):
+            m[1] = (u[1] + 26.84) / 0.2746
+            if m[1] < 70:
+                m[1] = 70
+        elif(u[1] < 0):
+            m[1] = (u[1] + 7.318) / 0.1152
+            if m[1] > -70:
+                m[1] = -70
+                                    
+            
+        msg.DevID = 10
+        msg.MsgID = 3
+        msg.Data = u[0]
+        self.pub.publish(msg)
+        msg.DevID = 10
+        msg.MsgID = 5
+        msg.Data = u[1]
+        self.pub.publish(msg)
                 
 
     def plos_EBS(self,x_k,x_k_1,y_k,y_k_1,x,y,n,L):
@@ -176,11 +176,11 @@ class Controller(object):
             b = 2*(d*g - d*y - x)
             c = x**2 + y**2 + g**2 - (n*L)**2 - 2*y*g
 
-        #ERROR HANDLING
-        if (b**2 - 4*a*c) < 0:
-            print 'ERROR'
-            print '[W]',x_k,y_k
-            print '[B]',x,y
+        	#ERROR HANDLING
+            if (b**2 - 4*a*c) < 0:
+            	print 'ERROR'
+            	print '[W]',x_k,y_k
+            	print '[B]',x,y
             
             if delta_x > 0:
                 x_los = (-b + math.sqrt(b**2 - 4*a*c) )/(2*a)
@@ -189,25 +189,25 @@ class Controller(object):
                 
             y_los = d*(x_los - e) + f;
             
-            # If we're going UP in North
-            if (x_k > x_k_1):
-                if x_los > x_k:
-                    x_los = x_k
-            # If we're going DOWN in North
-            if (x_k < x_k_1):
-                if x_los < x_k:
-                    x_los = x_k
+        # If we're going UP in North
+        if (x_k > x_k_1):
+            if x_los > x_k:
+                x_los = x_k
+        # If we're going DOWN in North
+        if (x_k < x_k_1):
+            if x_los < x_k:
+                x_los = x_k
 
-            # If we're going RIGHT in East
-            if (y_k > y_k_1):
-                if y_los > y_k:
-                    y_los = y_k
-            # If we're going LEFT in East
-            if (y_k < y_k_1):
-                if y_los < y_k:
-                    y_los = y_k
+        # If we're going RIGHT in East
+        if (y_k > y_k_1):
+            if y_los > y_k:
+                y_los = y_k
+        # If we're going LEFT in East
+        if (y_k < y_k_1):
+            if y_los < y_k:
+                y_los = y_k
 
-            return x_los,y_los;
+        return x_los,y_los;
 
 
 if __name__ == '__main__':
