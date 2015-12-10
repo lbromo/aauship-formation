@@ -61,14 +61,14 @@ class Controller(object):
 	
     def callback(self, data, gps):
         if self.first:
-            self.x_k_1 = gps.latitude
-            self.y_k_1 = gps.longitude
+            self.x_k_1 = (gps.latitude - Controller.CENTER_lat)*Controller.SCALE
+            self.y_k_1 = (gps.longitude - Controller.CENTER_lng)*Controller.SCALE
             self.first = False
             return
 
         self.psi[self.i % 2] = data.psi
-        self.lat[self.i % 2] = gps.latitude
-        self.long[self.i % 2] = gps.longitude
+        self.lat[self.i % 2] = (gps.latitude - Controller.CENTER_lat)*Controller.SCALE
+        self.long[self.i % 2] = (gps.longitude - Controller.CENTER_lng)*Controller.SCALE
         self.r = self.psi[self.i % 2] - self.psi[(self.i-1) % 2]
         self.u = self.lat[self.i % 2] - self.lat[(self.i-1) % 2]
         self.v = self.long[self.i % 2] - self.long[(self.i-1) % 2]
@@ -137,11 +137,11 @@ class Controller(object):
             
         msg.DevID = 10
         msg.MsgID = 3
-        msg.Data = u[0]
+        msg.Data = m[0]
         self.pub.publish(msg)
         msg.DevID = 10
         msg.MsgID = 5
-        msg.Data = u[1]
+        msg.Data = m[1]
         self.pub.publish(msg)
                 
 

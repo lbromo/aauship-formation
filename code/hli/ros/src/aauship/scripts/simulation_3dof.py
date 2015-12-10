@@ -83,8 +83,8 @@ ref = []
 waypoint_table = [[57.015207789616156,9.977458789944649],[57.01529686406438,9.977692812681198], [57.01541295257421,9.97741587460041], [57.01531876758453,9.977204650640488], [57.015207789616156, 9.977458789944649]]
 # Initial conditions 
 #x[0] = np.matrix('9; 9; 0; 0; 0; 0')
-x_0 = 0
-y_0 = 0
+x_0 = -17
+y_0 = -55
 x[0] = np.matrix('%s; %s; 0; 0; 0; 0' % (x_0, y_0))
 distance = []
 n = 5 # Boat search radius
@@ -128,8 +128,10 @@ while True:
         y_k_1 = (waypoint_table[i-1][1] - CENTER_lng) * SCALE 
         plt.gca().add_artist(plt.Circle((y_k,x_k),acceptance,color='r', alpha=.9))
 
+        print '###################################'
         print 'Loop number', i 
         print '[W]', x_k, y_k
+        print '###################################'
 
 
     
