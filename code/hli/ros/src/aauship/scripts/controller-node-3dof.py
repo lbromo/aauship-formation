@@ -112,7 +112,7 @@ class Controller(object):
         
         u = self.LQR * e
         
-        print (distance, x_los, y_los)
+        print (distance, x_los, y_los,float(y[0]),float(y[1]))
         
         msg = LLIinput()
         
@@ -138,6 +138,7 @@ class Controller(object):
         msg.DevID = 10
         msg.MsgID = 3
         msg.Data = m[0]
+        print msg
         self.pub.publish(msg)
         msg.DevID = 10
         msg.MsgID = 5
