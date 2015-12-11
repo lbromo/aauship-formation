@@ -1,0 +1,65 @@
+<!doctype html>
+<html>
+  <head>
+    <style type="text/css">
+      html, body, #map-canvas { height: 100%; margin: 0; padding: 0;}
+    </style>
+    <title> Distributed Ground Station </title>
+    <script type="text/javascript" src="http://cdn.robotwebtools.org/EventEmitter2/current/eventemitter2.min.js"></script>
+    <script src="http://cdn.robotwebtools.org/roslibjs/current/roslib.js"></script>
+    <script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC6yMzXktPuNALL0suRmwmIf_BnlLioHDE&callback=initMap" async defer ></script>
+
+  </head>
+  <body>
+
+    <script type="text/javascript">
+      function initMap() {
+        var mapOptions = {
+          center: { lat: 57.015305, lng: 9.977254},
+          mapTypeId: google.maps.MapTypeId.MAP, 
+          zoom: 20
+        };
+        map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+
+        var ros = new ROSLIB.Ros({
+          url : 'ws://localhost:9090'
+        });
+
+        ros.on('connection', function() {
+          console.log('Connected to websocket server.');
+        });
+   
+       ros.on('error', function(error) {
+         console.log('Error connecting to websocket server: ', error);
+       });
+     
+       ros.on('close', function() {
+         console.log('Connection to websocket server closed.');
+       });
+      
+
+        var topic = new ROSLIB.Topic({
+          ros: ros,
+          name : '/web',
+          messageType : 'aauship/GPS'
+        });
+
+      image = 'http://www.clker.com/cliparts/j/L/l/O/b/A/blue-dot.svg'
+
+        topic.subscribe(function(msg) {
+          console.log(msg);
+          var tmp_lat_lng = new google.maps.LatLng(msg.latitude, msg.longitude);
+          var marker = new google.maps.Marker({
+            map: map,
+            position: tmp_lat_lng,
+            icon: image
+          });
+        });
+      }
+
+    </script>
+
+    <div id="map-canvas"></div>
+  </body>
+</html>
