@@ -83,8 +83,8 @@ ref = []
 waypoint_table = [[57.015207789616156,9.977458789944649],[57.01529686406438,9.977692812681198], [57.01541295257421,9.97741587460041], [57.01531876758453,9.977204650640488], [57.015207789616156, 9.977458789944649]]
 # Initial conditions 
 #x[0] = np.matrix('9; 9; 0; 0; 0; 0')
-x_0 = -17
-y_0 = -55
+x_0 = -2
+y_0 = 17
 x[0] = np.matrix('%s; %s; 0; 0; 0; 0' % (x_0, y_0))
 distance = []
 n = 5 # Boat search radius
@@ -237,15 +237,17 @@ plt.savefig('step.eps', format='eps', dpi=1000, bbox_inches='tight')
 plt.gca().scatter(east, north)
 pylab.ylabel('North')
 pylab.xlabel('East')
-plt.grid()
+plt.grid(True,'major')
+plt.grid(True,'minor')
 pylab.title('Response in the NED frame')
-plt.savefig('step_pos.eps', format='eps', dpi=1000, bbox_inches='tight')
+plt.savefig('simulation_plot.eps', format='eps', dpi=1000, bbox_inches='tight')
 plt.show()
 
+'''
 # Heading Vector Representation
 Eih,Nih,Eoh,Noh = zip([east,north, [0.1*(east[i]+math.sin(psi[i])) for i in range(len(psi))], [0.1*(north[i]+math.cos(psi[i])) for i in range(len(psi))]])
 plt.quiver(Eih,Nih,Eoh,Noh,angles='xy',scale_units='xy',scale=1)
-'''
+
 
 # Velocities Representation
 plt.plot(vel_u, label='Velocity X')
