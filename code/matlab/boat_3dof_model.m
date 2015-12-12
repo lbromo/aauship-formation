@@ -66,19 +66,23 @@ sysd_cl = c2d(sys_cl,ts,'zoh');
 
 % Step cloased loop system
 x0 = [0 0 0 1 1 0]';
-figure(2)
 t = 0:ts:400;
 u = zeros(3,length(t));
 
 [y,t,x] = lsim(sysd_cl,u,t,x0);
-subplot(2,1,1)
+
+figure(2);
 plot(t,x(:,1), t,x(:,2), t,x(:,3));
 title('Postitions w controller')
 legend('surge pos', 'sway pos', 'yaw pos')
-subplot(2,1,2)
+axis([0 20 -0.2 0.4]);
+xlabel('Time');
+figure(3);
 plot(t,x(:,4), t,x(:,5), t,x(:,6));
 title('Velocities w controller')
 legend('surge vel', 'sway vel', 'yaw vel')
+axis([0 20 -0.5 1]);
+xlabel('Time');
 
 %% Save stuff
 save('3_dof', 'Ad', 'Bd', 'Cd', 'LQR')

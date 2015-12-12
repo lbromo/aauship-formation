@@ -240,9 +240,9 @@ pylab.xlabel('East')
 plt.grid(True,'major')
 plt.grid(True,'minor')
 pylab.title('Response in the NED frame')
-plt.savefig('simulation_plot.eps', format='eps', dpi=1000, bbox_inches='tight')
+#plt.savefig('simulation_plot.eps', format='eps', dpi=1000, bbox_inches='tight')
+plt.savefig('LOS_simulation.eps', format='eps', dpi=1000, bbox_inches='tight')
 plt.show()
-
 '''
 # Heading Vector Representation
 Eih,Nih,Eoh,Noh = zip([east,north, [0.1*(east[i]+math.sin(psi[i])) for i in range(len(psi))], [0.1*(north[i]+math.cos(psi[i])) for i in range(len(psi))]])
