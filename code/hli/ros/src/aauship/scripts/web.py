@@ -15,9 +15,6 @@ def index():
 
 def callback(gps_msg):
     global last_lat, last_lng
-    latitude, longitude = gpsfunctions.nmea2decimal(gps_msg.latitude, 'N', gps_msg.longitude, 'E')
-    gps_msg.latitude = latitude
-    gps_msg.longitude = longitude
     if (abs(last_lat - gps_msg.latitude) > 0.000009 or abs(last_lng - gps_msg.longitude) > 0.000009):
         last_lat = gps_msg.latitude
         last_lng = gps_msg.longitude
