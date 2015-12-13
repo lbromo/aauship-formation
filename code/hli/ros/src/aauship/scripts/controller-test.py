@@ -114,6 +114,8 @@ class Controller(object):
        	x_boat = float(y[0])
        	y_boat = float(y[1])
 
+        print (distance,x_boat,y_boat)
+
         x_los,y_los = self.plos_EBS(self.x_k,self.x_k_1,self.y_k,self.y_k_1,x_boat,y_boat,Controller.n,Controller.L)
         ref = np.matrix('%s; %s; 0; 0; 0; 0' % (x_los, y_los))
         e = R.transpose() * (self.ref - y)
