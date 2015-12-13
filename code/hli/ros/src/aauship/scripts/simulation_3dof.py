@@ -4,6 +4,13 @@ import scipy.io as sio
 import numpy as np
 import matplotlib.pyplot as plt
 
+import rospy
+from aauship.msg import *
+
+rospy.init_node('sim')
+
+pub = rospy.Publisher('gps2', GPS, queue_size=10)
+
 CENTER_lat = 57.01531876758453
 CENTER_lng = 9.977239519357681
 
@@ -175,7 +182,15 @@ while True:
 
     print "[T]", x_los,y_los
     print "[B]", float(y[-1][0]), float(y[-1][1])
+    
+    msg = GPS()
+    msg.latitude = float((y[-1][0] / SCALE) + CENTER_lat)
+    msg.longitude = float((y[-1][1] / SCALE) + CENTER_lng)
 
+    print msg
+    
+    pub.publish(msg)
+    
     if j % 15 == 0:
         plt.gca().add_artist(plt.Circle((float(y[-1][1]),float(y[-1][0])),n*L,color='g', alpha=0.1))
     j += 1
