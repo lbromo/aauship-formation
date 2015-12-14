@@ -15,7 +15,7 @@ def index():
 
 def callback(gps_msg):
     global last_lat, last_lng
-    if (abs(last_lat - gps_msg.latitude) > 0.000009 or abs(last_lng - gps_msg.longitude) > 0.000009):
+    if (abs(last_lat - gps_msg.latitude) > 0.0000009 or abs(last_lng - gps_msg.longitude) > 0.0000009):
         last_lat = gps_msg.latitude
         last_lng = gps_msg.longitude
         pub.publish(gps_msg)
@@ -25,6 +25,6 @@ def callback(gps_msg):
 
 if __name__ == '__main__':
     rospy.init_node('web')
-    sub = rospy.Subscriber('gps2', GPS, callback)
-    pub = rospy.Publisher('web', GPS, queue_size=1)
+    sub = rospy.Subscriber('simgps', SimGPS, callback)
+    pub = rospy.Publisher('web', SimGPS, queue_size=1)
     run(host='localhost', port=8080, debug=True)

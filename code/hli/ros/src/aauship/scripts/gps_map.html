@@ -20,8 +20,8 @@
           mapTypeId: google.maps.MapTypeId.MAP, 
           zoom: 20
         };
-        map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
-
+        var map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+        var i = 0;
         var ros = new ROSLIB.Ros({
           url : 'ws://localhost:9090'
         });
@@ -39,24 +39,63 @@
        });
       
 
-        var topic = new ROSLIB.Topic({
-          ros: ros,
-          name : '/web',
-          messageType : 'aauship/GPS'
-        });
+       var gps = new ROSLIB.Topic({
+         ros: ros,
+         name : '/web',
+         messageType : 'aauship/SimGPS'
+       });
 
-      image = 'http://www.clker.com/cliparts/j/L/l/O/b/A/blue-dot.svg'
+       var wp = new ROSLIB.Topic({
+         ros: ros,
+         name: '/wp',
+         messageType: 'aauship/wp'
+       });
 
-        topic.subscribe(function(msg) {
-          console.log(msg);
-          var tmp_lat_lng = new google.maps.LatLng(msg.latitude, msg.longitude);
-          var marker = new google.maps.Marker({
-            map: map,
-            position: tmp_lat_lng,
-            icon: image
-          });
-        });
-      }
+       gps.subscribe(function(msg) {
+         if ( (i++ % 10) == 0){
+           gps_tmp_lat_lng = new google.maps.LatLng(msg.latitude, msg.longitude);
+           gps_circle = new google.maps.Circle({
+             strokeColor: '#00FF00',
+             strokeOpacity: 0.5,
+             strokeWeight: 1,
+             fillColor: '#00FF00',
+             fillOpacity: 0.5,
+             map: map,
+             center: gps_tmp_lat_lng,
+             radius: msg.aos,
+             zIndex: 1
+           });
+         }
+         gps_tmp_lat_lng = new google.maps.LatLng(msg.latitude, msg.longitude);
+         gps_circle = new google.maps.Circle({
+           strokeColor: '#000000',
+           strokeOpacity: 1,
+           strokeWeight: 1,
+           fillColor: '#000000',
+           fillOpacity: 1,
+           map: map,
+           center: gps_tmp_lat_lng,
+           radius: 0.2,
+           zIndex: 10
+         });
+       });
+
+       wp.subscribe(function(msg) {
+         wp_tmp_lat_lng = new google.maps.LatLng(msg.lat, msg.long);
+         wp_circle = new google.maps.Circle({
+           strokeColor: '#FF0000',
+           strokeOpacity: 0.90,
+           strokeWeight: 1,
+           fillColor: '#FF0000',
+           fillOpacity: 0.90,
+           map: map,
+           center: wp_tmp_lat_lng,
+           radius: msg.aoa,
+           zIndex: 100
+         });
+       });
+
+    }
 
     </script>
 

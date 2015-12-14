@@ -71,6 +71,8 @@ add_message_files(
   controlTest.msg
   BatteryMonitor.msg
   KFStates.msg
+  wp.msg
+  SimGPS.msg
 )
 
 ## Generate services in the 'srv' folder

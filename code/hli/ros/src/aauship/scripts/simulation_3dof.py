@@ -5,11 +5,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 import rospy
+from std_msgs.msg import Float64MultiArray
 from aauship.msg import *
 
 rospy.init_node('sim')
 
-pub = rospy.Publisher('gps2', GPS, queue_size=10)
+pos_pub = rospy.Publisher('simgps', SimGPS, queue_size=10)
+wp_pub = rospy.Publisher('wp', wp, queue_size=10)
 
 CENTER_lat = 57.01531876758453
 CENTER_lng = 9.977239519357681
@@ -148,6 +150,13 @@ while True:
         y_k = (waypoint_table[i][1] - CENTER_lng) * SCALE
         x_k_1 = (waypoint_table[i-1][0] - CENTER_lat) * SCALE 
         y_k_1 = (waypoint_table[i-1][1] - CENTER_lng) * SCALE 
+
+        msg = wp()
+        msg.lat = waypoint_table[i][0]
+        msg.long = waypoint_table[i][1]
+        msg.aoa = acceptance
+        wp_pub.publish(msg)
+        print msg
         plt.gca().add_artist(plt.Circle((y_k,x_k),acceptance,color='r', alpha=.9))
 
         print '###################################'
@@ -183,16 +192,15 @@ while True:
     print "[T]", x_los,y_los
     print "[B]", float(y[-1][0]), float(y[-1][1])
     
-    msg = GPS()
-    msg.latitude = float((y[-1][0] / SCALE) + CENTER_lat)
-    msg.longitude = float((y[-1][1] / SCALE) + CENTER_lng)
-
-    print msg
-    
-    pub.publish(msg)
-    
     if j % 15 == 0:
         plt.gca().add_artist(plt.Circle((float(y[-1][1]),float(y[-1][0])),n*L,color='g', alpha=0.1))
+
+    msg = SimGPS()
+    msg.latitude = float((y[-1][0] / SCALE) + CENTER_lat)
+    msg.longitude = float((y[-1][1] / SCALE) + CENTER_lng)
+    msg.aos = L*n
+    pos_pub.publish(msg)
+
     j += 1
 
     #Reference equal to the LOS position
@@ -272,7 +280,7 @@ plt.grid(True,'minor')
 pylab.title('Response in the NED frame')
 #plt.savefig('simulation_plot.eps', format='eps', dpi=1000, bbox_inches='tight')
 plt.savefig('LOS_simulation.eps', format='eps', dpi=1000, bbox_inches='tight')
-plt.show()
+#plt.show()
 '''
 # Heading Vector Representation
 Eih,Nih,Eoh,Noh = zip([east,north, [0.1*(east[i]+math.sin(psi[i])) for i in range(len(psi))], [0.1*(north[i]+math.cos(psi[i])) for i in range(len(psi))]])
