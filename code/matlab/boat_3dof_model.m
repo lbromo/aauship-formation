@@ -56,9 +56,10 @@ R(2,2) = 1/500;
 R(3,3) = 1;
 
 LQR = lqr(A,B,Q,R);
-%Poles = eig(A-B*K);
-
-%K = place(A,B,Poles);
+N = 1;
+% Poles = eig(A-B*K);
+% y
+% K = place(A,B,Poles);
 
 ts= 0.1;
 sys_cl = ss(A-B*LQR,B,C,0);

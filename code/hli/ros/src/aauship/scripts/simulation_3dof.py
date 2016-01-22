@@ -117,7 +117,7 @@ x_k = (waypoint_table[0][0] - CENTER_lat) * SCALE
 y_k = (waypoint_table[0][1] - CENTER_lng) * SCALE 
 x_k_1 = x_0
 y_k_1 = y_0
-acceptance = 1
+acceptance = 5
 
 i = 0
 j = 0
