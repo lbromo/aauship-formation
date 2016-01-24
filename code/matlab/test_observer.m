@@ -78,6 +78,13 @@ sysd_cl = c2d(sys_cl,ts,'zoh');
 
 % Simulation running
 [y_cl,t,x_cl] = lsim(sysd_cl,u,t,x0);
+
+Ad = sysd.A;
+Bd = sysd.B;
+Cd = sysd.C;
+Kd = lqr(Ad,Bd,Q,R);
+save('state_feedback', 'Ad', 'Bd', 'Cd', 'Kd', 'A', 'B', 'C', 'K')
+
 % 
 % % Representation
 % figure(1);
@@ -101,3 +108,9 @@ sysd_cl = c2d(sys_cl,ts,'zoh');
 % scatter(x(:,2),x(:,1));
 % title('Velocities w/o controller')
 
+x = [0 0 0 0 0 0]';
+ref = [1 1 0]';
+x(1)
+for i = 1:10000
+  x(:,i+1) = A*x(:,i) + B*(ref - (K*x(:,i)));
+end
